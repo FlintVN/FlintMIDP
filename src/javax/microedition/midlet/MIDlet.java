@@ -48,6 +48,11 @@ public abstract class MIDlet {
     protected abstract void destroyApp(boolean unconditional)
             throws MIDletStateChangeException;
 
+    /** FlintOS launcher entry point for invoking the protected lifecycle API. */
+    public final void startApp0() throws MIDletStateChangeException {
+        startApp();
+    }
+
     /**
      * Notifies the application management software that this MIDlet has
      * entered the destroyed state.
