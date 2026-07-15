@@ -26,18 +26,26 @@ public final class ResourceLoader {
         suiteDirectory = directory;
     }
 
+    /** Returns the filesystem-safe identifier of the current MIDlet suite. */
+    public static synchronized String getSuiteDirectory() {
+        if(suiteDirectory == null || suiteDirectory.length() == 0)
+            return "default";
+        return suiteDirectory;
+    }
+
     /** Opens a resource belonging to the current MIDlet suite. */
     public static InputStream open(String name) throws FileNotFoundException {
-        if (name == null) {
+        if(name == null) {
             throw new NullPointerException("name");
         }
 
         String relativeName = name.startsWith("/") ? name.substring(1) : name;
         String currentSuiteDirectory = suiteDirectory;
         String path;
-        if (currentSuiteDirectory == null || currentSuiteDirectory.length() == 0) {
+        if(currentSuiteDirectory == null || currentSuiteDirectory.length() == 0) {
             path = RESOURCE_ROOT + "/" + relativeName;
-        } else {
+        }
+        else {
             path = RESOURCE_ROOT + "/" + currentSuiteDirectory + "/" + relativeName;
         }
         return new FileInputStream(path);

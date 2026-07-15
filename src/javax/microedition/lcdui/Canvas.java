@@ -24,7 +24,7 @@ public abstract class Canvas extends Displayable {
 
     /* keypad mapping (numeric keypad → game actions); refined when input lands */
     public int getGameAction(int keyCode) {
-        switch (keyCode) {
+        switch(keyCode) {
             case KEY_NUM2: return UP;
             case KEY_NUM8: return DOWN;
             case KEY_NUM4: return LEFT;
@@ -38,7 +38,7 @@ public abstract class Canvas extends Displayable {
         }
     }
     public int getKeyCode(int gameAction) {
-        switch (gameAction) {
+        switch(gameAction) {
             case UP: return KEY_NUM2;
             case DOWN: return KEY_NUM8;
             case LEFT: return KEY_NUM4;

@@ -26,9 +26,9 @@ public abstract class GameCanvas extends Canvas {
      * this canvas (virtual dispatch -> the game's own overrides). */
     private void pumpTouch() {
         int cur = board.Touch.poll();
-        if (cur == touchPrev) return;
-        if (touchPrev != -1) keyReleased(touchPrev);
-        if (cur != -1) keyPressed(cur);
+        if(cur == touchPrev) return;
+        if(touchPrev != -1) keyReleased(touchPrev);
+        if(cur != -1) keyPressed(cur);
         touchPrev = cur;
     }
 
@@ -47,7 +47,7 @@ public abstract class GameCanvas extends Canvas {
     protected void keyReleased(int keyCode) { keyStates &= ~toState(keyCode); }
 
     private int toState(int keyCode) {
-        switch (getGameAction(keyCode)) {
+        switch(getGameAction(keyCode)) {
             case UP:     return UP_PRESSED;
             case DOWN:   return DOWN_PRESSED;
             case LEFT:   return LEFT_PRESSED;

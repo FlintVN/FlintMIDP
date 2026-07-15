@@ -30,11 +30,11 @@ public class Sprite extends Layer {
     public int getFrame() { return sequence != null ? seqIndex : frame; }
     public void setFrameSequence(int[] seq) { sequence = seq; seqIndex = 0; }
     public void nextFrame() {
-        if (sequence != null) seqIndex = (seqIndex + 1) % sequence.length;
+        if(sequence != null) seqIndex = (seqIndex + 1) % sequence.length;
         else frame = (frame + 1) % frameCount;
     }
     public void prevFrame() {
-        if (sequence != null) seqIndex = (seqIndex + sequence.length - 1) % sequence.length;
+        if(sequence != null) seqIndex = (seqIndex + sequence.length - 1) % sequence.length;
         else frame = (frame + frameCount - 1) % frameCount;
     }
     public void setTransform(int transform) { /* TRANS_NONE only for now */ }
@@ -42,7 +42,7 @@ public class Sprite extends Layer {
     public void setRefPixelPosition(int x, int y) { this.x = x; this.y = y; }
 
     public void paint(Graphics g) {
-        if (!visible) return;
+        if(!visible) return;
         int idx = sequence != null ? sequence[seqIndex] : frame;
         int sx = (idx % cols) * fw, sy = (idx / cols) * fh;
         g.drawRegion(image, sx, sy, fw, fh, 0, x, y, Graphics.TOP | Graphics.LEFT);

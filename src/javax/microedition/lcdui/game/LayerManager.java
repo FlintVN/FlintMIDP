@@ -22,9 +22,9 @@ public class LayerManager {
         int cx = g.getClipX(), cy = g.getClipY(), cw = g.getClipWidth(), ch = g.getClipHeight();
         g.clipRect(x, y, vw, vh);
         g.translate(x - vx, y - vy);
-        for (int i = layers.size() - 1; i >= 0; i--) {   // back (last) -> front (0)
+        for(int i = layers.size() - 1; i >= 0; i--) {   // back (last) -> front (0)
             Layer l = layers.elementAt(i);
-            if (l.isVisible()) l.paint(g);
+            if(l.isVisible()) l.paint(g);
         }
         g.translate(-(x - vx), -(y - vy));
         g.setClip(cx, cy, cw, ch);

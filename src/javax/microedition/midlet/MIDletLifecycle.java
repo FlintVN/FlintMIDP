@@ -33,10 +33,10 @@ public final class MIDletLifecycle {
      * @param midlet MIDlet to manage
      */
     public static synchronized void attach(MIDlet midlet) {
-        if (midlet == null) {
+        if(midlet == null) {
             throw new NullPointerException("midlet");
         }
-        if (currentMIDlet != null && state != DESTROYED) {
+        if(currentMIDlet != null && state != DESTROYED) {
             throw new IllegalStateException("A MIDlet is already active");
         }
 
@@ -54,10 +54,10 @@ public final class MIDletLifecycle {
     public static synchronized void start(MIDlet midlet)
             throws MIDletStateChangeException {
         requireManaged(midlet);
-        if (state == DESTROYED) {
+        if(state == DESTROYED) {
             throw new IllegalStateException("MIDlet has been destroyed");
         }
-        if (state == ACTIVE) {
+        if(state == ACTIVE) {
             return;
         }
 
@@ -65,10 +65,10 @@ public final class MIDletLifecycle {
         resumeRequested = false;
         try {
             midlet.startApp();
-        } catch (MIDletStateChangeException exception) {
+        } catch(MIDletStateChangeException exception) {
             state = PAUSED;
             throw exception;
-        } catch (RuntimeException exception) {
+        } catch(RuntimeException exception) {
             state = DESTROYED;
             throw exception;
         }
@@ -81,7 +81,7 @@ public final class MIDletLifecycle {
      */
     public static synchronized void pause(MIDlet midlet) {
         requireManaged(midlet);
-        if (state != ACTIVE) {
+        if(state != ACTIVE) {
             return;
         }
 
@@ -101,18 +101,18 @@ public final class MIDletLifecycle {
             MIDlet midlet, boolean unconditional)
             throws MIDletStateChangeException {
         requireManaged(midlet);
-        if (state == DESTROYED) {
+        if(state == DESTROYED) {
             return;
         }
 
         try {
             midlet.destroyApp(unconditional);
-        } catch (MIDletStateChangeException exception) {
-            if (!unconditional) {
+        } catch(MIDletStateChangeException exception) {
+            if(!unconditional) {
                 throw exception;
             }
         } finally {
-            if (unconditional) {
+            if(unconditional) {
                 state = DESTROYED;
             }
         }
@@ -142,14 +142,14 @@ public final class MIDletLifecycle {
 
     static synchronized void notifyPaused(MIDlet midlet) {
         requireManaged(midlet);
-        if (state == ACTIVE) {
+        if(state == ACTIVE) {
             state = PAUSED;
         }
     }
 
     static synchronized void resumeRequest(MIDlet midlet) {
         requireManaged(midlet);
-        if (state == PAUSED) {
+        if(state == PAUSED) {
             resumeRequested = true;
         }
     }
@@ -166,10 +166,10 @@ public final class MIDletLifecycle {
     }
 
     private static void requireManaged(MIDlet midlet) {
-        if (midlet == null) {
+        if(midlet == null) {
             throw new NullPointerException("midlet");
         }
-        if (midlet != currentMIDlet) {
+        if(midlet != currentMIDlet) {
             throw new IllegalStateException("MIDlet is not managed");
         }
     }

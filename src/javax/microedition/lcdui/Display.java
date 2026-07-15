@@ -18,25 +18,25 @@ public class Display {
 
     /** Launcher boot: bring up the LCD and the screen framebuffer. (Not MIDP API.) */
     public static synchronized void initScreen() {
-        if (screenBuf != null) return;
+        if(screenBuf != null) return;
         Lcd.init();
         sw = Lcd.width();
         sh = Lcd.height();
         screenBuf = new byte[sw * sh * 2];
         flint.drawing.Graphics fg = flint.drawing.Graphics.create(sw, sh, screenBuf);
         screenGfx = new Graphics(fg, sw, sh);
-        if (instance == null) instance = new Display();
+        if(instance == null) instance = new Display();
     }
 
     public static Display getDisplay(javax.microedition.midlet.MIDlet m) {
-        if (instance == null) instance = new Display();
+        if(instance == null) instance = new Display();
         return instance;
     }
 
     public void setCurrent(Displayable d) {
         System.out.println("[setCurrent] " + (d == null ? "null" : d.getClass().getName()));
         current = d;
-        if (d instanceof Canvas) {
+        if(d instanceof Canvas) {
             ((Canvas) d).showNotify();
             requestPaint((Canvas) d);
         }
@@ -50,7 +50,7 @@ public class Display {
     public boolean isColor() { return true; }
     public int numColors() { return 65536; }
     public int numAlphaLevels() { return 1; }
-    public void callSerially(Runnable r) { if (r != null) r.run(); }
+    public void callSerially(Runnable r) { if(r != null) r.run(); }
     public boolean flashBacklight(int ms) { return false; }
     public boolean vibrate(int ms) { return false; }
 
@@ -58,9 +58,9 @@ public class Display {
     private static long flushCount = 0;
     public static Graphics gameGraphics() { return screenGfx; }
     public static void flush() {
-        if (screenBuf == null) return;
+        if(screenBuf == null) return;
         Lcd.present(screenBuf);
-        if ((flushCount++ % 30) == 0) System.out.println("flush #" + flushCount);
+        if((flushCount++ % 30) == 0) System.out.println("flush #" + flushCount);
     }
 
     /* ---- internal pump ---- */
@@ -70,11 +70,11 @@ public class Display {
 
     private static int paintCount = 0;
     static synchronized void requestPaint(Canvas c) {
-        if (screenGfx == null || c == null) return;
+        if(screenGfx == null || c == null) return;
         screenGfx.reset();
         c.paint(screenGfx);
         Lcd.present(screenBuf);
-        if ((paintCount++ % 10) == 0)
+        if((paintCount++ % 10) == 0)
             System.out.println("paint #" + paintCount);
     }
 }

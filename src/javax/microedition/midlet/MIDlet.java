@@ -80,11 +80,11 @@ public abstract class MIDlet {
      * @throws NullPointerException if {@code key} is {@code null}
      */
     public final String getAppProperty(String key) {
-        if (key == null) {
+        if(key == null) {
             throw new NullPointerException("key");
         }
 
-        if (applicationProperties == null) {
+        if(applicationProperties == null) {
             applicationProperties = loadApplicationProperties();
         }
         return applicationProperties.get(key);
@@ -101,7 +101,7 @@ public abstract class MIDlet {
      */
     public final boolean platformRequest(String url)
             throws ConnectionNotFoundException {
-        if (url == null) {
+        if(url == null) {
             throw new NullPointerException("url");
         }
         return MIDletLifecycle.platformRequest(this, url);
@@ -116,7 +116,7 @@ public abstract class MIDlet {
      * @throws NullPointerException if {@code permission} is {@code null}
      */
     public final int checkPermission(String permission) {
-        if (permission == null) {
+        if(permission == null) {
             throw new NullPointerException("permission");
         }
         return MIDletLifecycle.checkPermission(this, permission);
@@ -127,7 +127,7 @@ public abstract class MIDlet {
 
         try (InputStream stream = ResourceLoader.open(MANIFEST_RESOURCE)) {
             parseProperties(new String(stream.readAllBytes()), properties);
-        } catch (IOException ignored) {
+        } catch(IOException ignored) {
             // An absent or unreadable manifest behaves as an empty property set.
         }
         return properties;
@@ -136,15 +136,15 @@ public abstract class MIDlet {
     private static void parseProperties(
             String content, Hashtable<String, String> properties) {
         int start = 0;
-        while (start < content.length()) {
+        while(start < content.length()) {
             int end = content.indexOf('\n', start);
-            if (end < 0) {
+            if(end < 0) {
                 end = content.length();
             }
 
             String line = content.substring(start, end).trim();
             int separator = line.indexOf(':');
-            if (separator > 0) {
+            if(separator > 0) {
                 String key = line.substring(0, separator).trim();
                 String value = line.substring(separator + 1).trim();
                 properties.put(key, value);

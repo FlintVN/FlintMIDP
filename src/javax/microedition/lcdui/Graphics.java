@@ -52,7 +52,7 @@ public class Graphics {
     public void setGrayScale(int v) { setColor(v, v, v); }
     public void setStrokeStyle(int s) { stroke = s; }
     public int getStrokeStyle() { return stroke; }
-    public void setFont(Font f) { if (f != null) font = f; }
+    public void setFont(Font f) { if(f != null) font = f; }
     public Font getFont() { return font; }
 
     /* ---- transform / clip ----
@@ -107,7 +107,7 @@ public class Graphics {
 
     /* ---- images ---- */
     public void drawImage(Image img, int x, int y, int anchor) {
-        if (img == null) return;
+        if(img == null) return;
         int w = img.getWidth(), h = img.getHeight();
         x = anchorX(x, w, anchor);
         y = anchorY(y, h, anchor);
@@ -118,7 +118,7 @@ public class Graphics {
      * (mirror/rotate) fall back to no-transform for now (game uses drawRegion once). */
     public void drawRegion(Image src, int sx, int sy, int sw, int sh,
                            int transform, int dx, int dy, int anchor) {
-        if (src == null) return;
+        if(src == null) return;
         dx = anchorX(dx, sw, anchor);
         dy = anchorY(dy, sh, anchor);
         int cx = getClipX(), cy = getClipY(), cw = clipW, ch = clipH;   // save clip (user space)
@@ -128,13 +128,13 @@ public class Graphics {
     }
 
     private int anchorX(int x, int w, int anchor) {
-        if ((anchor & RIGHT) != 0) return x - w;
-        if ((anchor & HCENTER) != 0) return x - w / 2;
+        if((anchor & RIGHT) != 0) return x - w;
+        if((anchor & HCENTER) != 0) return x - w / 2;
         return x;   // LEFT / default
     }
     private int anchorY(int y, int h, int anchor) {
-        if ((anchor & BOTTOM) != 0) return y - h;
-        if ((anchor & VCENTER) != 0) return y - h / 2;
+        if((anchor & BOTTOM) != 0) return y - h;
+        if((anchor & VCENTER) != 0) return y - h / 2;
         return y;   // TOP / BASELINE / default
     }
 }

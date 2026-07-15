@@ -37,21 +37,22 @@ public class Image {
     }
 
     public static Image createRGBImage(int[] rgb, int w, int h, boolean processAlpha) {
-        if (processAlpha) {
+        if(processAlpha) {
             int aBytes = (w * h + 1) >> 1;
             byte[] d = new byte[w * h * 2 + aBytes];
-            for (int i = 0; i < w * h; i++) {
+            for(int i = 0; i < w * h; i++) {
                 int argb = rgb[i];
                 pack565(d, i, argb);
                 int a4 = ((argb >>> 24) & 0xFF) >> 4;
                 int ai = w * h * 2 + (i >> 1);
-                if ((i & 1) == 0) d[ai] = (byte) ((d[ai] & 0xF0) | a4);
+                if((i & 1) == 0) d[ai] = (byte) ((d[ai] & 0xF0) | a4);
                 else              d[ai] = (byte) ((d[ai] & 0x0F) | (a4 << 4));
             }
             return new Image(IMG_ARGB565, w, h, d, false);
-        } else {
+        }
+        else {
             byte[] d = new byte[w * h * 2];
-            for (int i = 0; i < w * h; i++) pack565(d, i, rgb[i]);
+            for(int i = 0; i < w * h; i++) pack565(d, i, rgb[i]);
             return new Image(IMG_RGB565, w, h, d, false);
         }
     }
@@ -61,18 +62,18 @@ public class Image {
     public static Image createImage(byte[] imageData, int off, int len) {
         int[] wh = new int[3];
         byte[] px = board.Png.decode(imageData, off, len, wh);
-        if (px != null)
+        if(px != null)
             return new Image(wh[2], wh[0], wh[1], px, false);
 
         int w = 16, h = 16;
-        if (len >= 24 && (imageData[off] & 0xFF) == 0x89) {   // PNG signature
+        if(len >= 24 && (imageData[off] & 0xFF) == 0x89) {   // PNG signature
             w = beInt(imageData, off + 16);                   // IHDR width
             h = beInt(imageData, off + 20);                   // IHDR height
         }
-        if (w <= 0 || w > 2048) w = 16;
-        if (h <= 0 || h > 2048) h = 16;
+        if(w <= 0 || w > 2048) w = 16;
+        if(h <= 0 || h > 2048) h = 16;
         byte[] d = new byte[w * h * 2];
-        for (int i = 0; i < w * h; i++) { d[2 * i] = (byte) 0xF8; d[2 * i + 1] = (byte) 0x1F; } // magenta
+        for(int i = 0; i < w * h; i++) { d[2 * i] = (byte) 0xF8; d[2 * i + 1] = (byte) 0x1F; } // magenta
         return new Image(IMG_RGB565, w, h, d, false);
     }
     public static Image createImage(java.io.InputStream stream) throws java.io.IOException {
@@ -98,7 +99,7 @@ public class Image {
 
     /* ---- instance ---- */
     public Graphics getGraphics() {
-        if (!mutable) throw new IllegalStateException("immutable image");
+        if(!mutable) throw new IllegalStateException("immutable image");
         flint.drawing.Graphics fg = flint.drawing.Graphics.create(width, height, data);
         return new Graphics(fg, width, height);
     }

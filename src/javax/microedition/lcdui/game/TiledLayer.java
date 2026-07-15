@@ -22,8 +22,8 @@ public class TiledLayer extends Layer {
     public void setCell(int col, int row, int tileIndex) { cells[row][col] = tileIndex; }
     public int getCell(int col, int row) { return cells[row][col]; }
     public void fillCells(int col, int row, int numCols, int numRows, int tileIndex) {
-        for (int r = row; r < row + numRows; r++)
-            for (int c = col; c < col + numCols; c++) cells[r][c] = tileIndex;
+        for(int r = row; r < row + numRows; r++)
+            for(int c = col; c < col + numCols; c++) cells[r][c] = tileIndex;
     }
     public int getColumns() { return cols; }
     public int getRows() { return rows; }
@@ -41,13 +41,13 @@ public class TiledLayer extends Layer {
     public int getAnimatedTile(int animatedTileIndex) { return anim[-animatedTileIndex - 1]; }
 
     public void paint(Graphics g) {
-        if (!visible) return;
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
+        if(!visible) return;
+        for(int r = 0; r < rows; r++) {
+            for(int c = 0; c < cols; c++) {
                 int t = cells[r][c];
-                if (t == 0) continue;
-                if (t < 0) t = anim[-t - 1];
-                if (t == 0) continue;
+                if(t == 0) continue;
+                if(t < 0) t = anim[-t - 1];
+                if(t == 0) continue;
                 int idx = t - 1;          // 1-based -> 0-based
                 int sx = (idx % tilesPerRow) * tileW;
                 int sy = (idx / tilesPerRow) * tileH;
