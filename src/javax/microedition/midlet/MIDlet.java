@@ -53,6 +53,17 @@ public abstract class MIDlet {
         startApp();
     }
 
+    /** FlintOS debugger entry point for invoking the protected pause callback. */
+    public final void pauseApp0() {
+        pauseApp();
+    }
+
+    /** FlintOS debugger entry point for invoking the protected destroy callback. */
+    public final void destroyApp0(boolean unconditional)
+            throws MIDletStateChangeException {
+        destroyApp(unconditional);
+    }
+
     /**
      * Notifies the application management software that this MIDlet has
      * entered the destroyed state.
