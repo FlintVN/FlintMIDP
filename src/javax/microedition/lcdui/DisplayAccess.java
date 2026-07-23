@@ -9,6 +9,11 @@ public final class DisplayAccess {
         Display.initScreen();
     }
 
+    /** Set logical game geometry before creating any Display or Canvas. */
+    public static void initScreen(int width, int height, String presentMode) {
+        Display.initScreen(width, height, presentMode);
+    }
+
     public static Graphics gameGraphics() {
         return Display.gameGraphics();
     }

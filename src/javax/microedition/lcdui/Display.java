@@ -9,6 +9,7 @@ public class Display {
     private static Display instance;
 
     private static int sw, sh;
+    private static String presentMode;
     private static byte[] screenBuf;
     private static Graphics screenGfx;
 
@@ -16,21 +17,65 @@ public class Display {
 
     private Display() {}
 
-    /** Launcher boot: bring up the LCD and the screen framebuffer. (Not MIDP API.)
-     *  Uses physical panel geometry from Lcd.width()/height(). System properties
-     *  flint.lcdui.width / flint.lcdui.height are NOT applied here because the
-     *  native present() writes directly to the panel with its native stride;
-     *  a mismatch between framebuffer and panel dimensions causes pixel corruption.
-     *  Games expecting landscape on a portrait panel must rotate via flint.lcdui.present. */
+    /** Launcher boot: bring up the LCD and logical MIDP framebuffer. (Not MIDP API.)
+     *  Game launchers select their expected dimensions with flint.lcdui.width and
+     *  flint.lcdui.height. Native Lcd.present maps the logical buffer to the
+     *  physical panel, so a 320x240 game still receives a landscape Canvas on
+     *  FlintOS's 240x320 display. */
     static synchronized void initScreen() {
+        int panelWidth = Lcd.width();
+        int panelHeight = Lcd.height();
+        int width = displayDimension("flint.lcdui.width", panelWidth);
+        int height = displayDimension("flint.lcdui.height", panelHeight);
+        String mode = System.getProperty("flint.lcdui.present");
+        initScreen(width, height, mode);
+    }
+
+    /** Explicit launcher configuration. Keeps game display mode in Main. */
+    static synchronized void initScreen(int width, int height, String mode) {
         if(screenBuf != null) return;
-        Lcd.init();
-        sw = Lcd.width();
-        sh = Lcd.height();
-        screenBuf = new byte[sw * sh * 2];
+        if(width <= 0 || height <= 0) {
+            throw new IllegalArgumentException("Invalid MIDP display: " + width + "x" + height);
+        }
+
+        /* Java launcher owns game selection. Configure native presentation
+         * before the framebuffer is made, then use resulting logical size. */
+        int panelWidth = Lcd.width();
+        int panelHeight = Lcd.height();
+        sw = width;
+        sh = height;
+        presentMode = mode;
+        if(presentMode == null || presentMode.length() == 0) presentMode = "direct";
+        Lcd.init(sw, sh, presentMode);
+
+        long byteCount = (long)sw * (long)sh * 2L;
+        if(byteCount > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("MIDP display is too large: " + sw + "x" + sh);
+        }
+        screenBuf = new byte[(int)byteCount];
         flint.drawing.Graphics fg = flint.drawing.Graphics.create(sw, sh, screenBuf);
         screenGfx = new Graphics(fg, sw, sh);
+        System.out.println("MIDP display: logical " + sw + "x" + sh
+                + ", panel " + panelWidth + "x" + panelHeight
+                + ", present " + presentMode);
         if(instance == null) instance = new Display();
+    }
+
+    private static int displayDimension(String property, int fallback) {
+        String value = System.getProperty(property);
+        if(value == null || value.length() == 0) return fallback;
+        try {
+            int dimension = Integer.parseInt(value);
+            if(dimension <= 0) throw new NumberFormatException(value);
+            return dimension;
+        } catch(NumberFormatException exception) {
+            System.out.println("Invalid " + property + ": " + value + "; using " + fallback);
+            return fallback;
+        }
+    }
+
+    private static void present() {
+        Lcd.present(screenBuf);
     }
 
     public static Display getDisplay(javax.microedition.midlet.MIDlet m) {
@@ -64,7 +109,7 @@ public class Display {
     public static Graphics gameGraphics() { return screenGfx; }
     public static void flush() {
         if(screenBuf == null) return;
-        Lcd.present(screenBuf);
+        present();
         if((flushCount++ % 30) == 0) System.out.println("flush #" + flushCount);
     }
 
@@ -82,13 +127,13 @@ public class Display {
         try {
             screenGfx.reset();
             c.paint(screenGfx);
-            Lcd.present(screenBuf);
+            present();
             if((paintCount++ % 10) == 0)
                 System.out.println("paint #" + paintCount);
-        } catch(Exception e) {
+        } catch(Throwable error) {
             System.out.print("Paint error: ");
-            e.printStackTrace();
-            Lcd.present(screenBuf);
+            error.printStackTrace();
+            present();
         } finally {
             painting = false;
         }
