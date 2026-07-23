@@ -2,6 +2,9 @@ package javax.microedition.midlet;
 
 import java.io.IOException;
 import javax.microedition.io.ConnectionNotFoundException;
+import javax.microedition.lcdui.DisplayAccess;
+import javax.microedition.rms.RecordStore;
+import javax.microedition.rms.RecordStoreException;
 
 /**
  * FlintOS bridge between its application manager and the protected MIDlet
@@ -53,6 +56,8 @@ public final class MIDletLifecycle {
             throw new IllegalArgumentException("Missing MIDlet class name");
         }
 
+        bootstrapPlatform();
+
         // Property table loaded BEFORE constructor (games may call
         // getAppProperty() from within the constructor chain).
         prepareSuite();
@@ -81,6 +86,14 @@ public final class MIDletLifecycle {
         MIDlet midlet = (MIDlet)instance;
         completeMIDletCreation(midlet);
         start(midlet);
+    }
+
+    /** Sets up platform services for raw MIDP suites without a launcher class. */
+    private static void bootstrapPlatform() throws RecordStoreException {
+        DisplayAccess.initScreen();
+        board.Touch.init();
+        board.Audio.init();
+        RecordStore.openRecordStore("Preferences", true).closeRecordStore();
     }
 
     /**
