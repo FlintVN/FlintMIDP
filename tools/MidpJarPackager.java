@@ -61,7 +61,7 @@ public final class MidpJarPackager {
         try(InputStream input = Files.newInputStream(manifestFile)) {
             base = new Manifest(input);
         }
-        writeJar(output.resolve("midp.jar"), manifestFor(base, Artifact.MIDP), midp, !development);
+        writeJar(output.resolve("j2me.jar"), manifestFor(base, Artifact.MIDP), midp, !development);
         writeJar(output.resolve("flintos.midp.jar"), manifestFor(base, Artifact.RUNTIME), runtime, !development);
         writeJar(output.resolve("m3g.jar"), manifestFor(base, Artifact.M3G), m3g, !development);
     }

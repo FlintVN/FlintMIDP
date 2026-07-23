@@ -2,9 +2,6 @@ package javax.microedition.midlet;
 
 import java.io.IOException;
 import javax.microedition.io.ConnectionNotFoundException;
-import javax.microedition.lcdui.DisplayAccess;
-import javax.microedition.rms.RecordStore;
-import javax.microedition.rms.RecordStoreException;
 
 /**
  * FlintOS bridge between its application manager and the protected MIDlet
@@ -88,12 +85,27 @@ public final class MIDletLifecycle {
         start(midlet);
     }
 
-    /** Sets up platform services for raw MIDP suites without a launcher class. */
-    private static void bootstrapPlatform() throws RecordStoreException {
-        DisplayAccess.initScreen();
-        board.Touch.init();
-        board.Audio.init();
-        RecordStore.openRecordStore("Preferences", true).closeRecordStore();
+    /** Sets up optional FlintOS services for raw MIDP suites without a launcher class. */
+    private static void bootstrapPlatform() {
+        invokeStatic("javax.microedition.lcdui.DisplayAccess", "initScreen");
+        invokeStatic("board.Touch", "init");
+        invokeStatic("board.Audio", "init");
+        bootstrapPreferences();
+    }
+
+    private static void invokeStatic(String className, String methodName) {
+        try {
+            Class.forName(className).getMethod(methodName).invoke(null);
+        } catch(Throwable ignored) {
+        }
+    }
+
+    private static void bootstrapPreferences() {
+        try {
+            javax.microedition.rms.RecordStore.openRecordStore("Preferences", true)
+                    .closeRecordStore();
+        } catch(Throwable ignored) {
+        }
     }
 
     /**
