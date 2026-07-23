@@ -7,6 +7,9 @@ import java.io.IOException;
 public class Connector {
     public static final int READ = 1, WRITE = 2, READ_WRITE = 3;
 
+    private Connector() {
+    }
+
     public static Connection open(String name) throws IOException {
         throw new ConnectionNotFoundException("Connector not supported: " + name);
     }

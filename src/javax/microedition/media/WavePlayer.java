@@ -1,5 +1,6 @@
 package javax.microedition.media;
 
+import flint.midp.Streams;
 import flintos.device.Audio;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +24,7 @@ final class WavePlayer extends AbstractPlayer {
     WavePlayer(InputStream stream, String type) throws IOException, MediaException {
         this.type = type;
         try(InputStream input = stream) {
-            source = input.readAllBytes();
+            source = Streams.readAllBytes(input);
         }
         parseHeader();
     }

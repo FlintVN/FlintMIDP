@@ -16,8 +16,13 @@ public class Display {
 
     private Display() {}
 
-    /** Launcher boot: bring up the LCD and the screen framebuffer. (Not MIDP API.) */
-    public static synchronized void initScreen() {
+    /** Launcher boot: bring up the LCD and the screen framebuffer. (Not MIDP API.)
+     *  Uses physical panel geometry from Lcd.width()/height(). System properties
+     *  flint.lcdui.width / flint.lcdui.height are NOT applied here because the
+     *  native present() writes directly to the panel with its native stride;
+     *  a mismatch between framebuffer and panel dimensions causes pixel corruption.
+     *  Games expecting landscape on a portrait panel must rotate via flint.lcdui.present. */
+    static synchronized void initScreen() {
         if(screenBuf != null) return;
         Lcd.init();
         sw = Lcd.width();
@@ -69,12 +74,23 @@ public class Display {
     static Displayable currentShown() { return instance == null ? null : instance.current; }
 
     private static int paintCount = 0;
+    private static boolean painting;
     static synchronized void requestPaint(Canvas c) {
         if(screenGfx == null || c == null) return;
-        screenGfx.reset();
-        c.paint(screenGfx);
-        Lcd.present(screenBuf);
-        if((paintCount++ % 10) == 0)
-            System.out.println("paint #" + paintCount);
+        if(painting) return;
+        painting = true;
+        try {
+            screenGfx.reset();
+            c.paint(screenGfx);
+            Lcd.present(screenBuf);
+            if((paintCount++ % 10) == 0)
+                System.out.println("paint #" + paintCount);
+        } catch(Exception e) {
+            System.out.print("Paint error: ");
+            e.printStackTrace();
+            Lcd.present(screenBuf);
+        } finally {
+            painting = false;
+        }
     }
 }

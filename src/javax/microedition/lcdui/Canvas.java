@@ -67,6 +67,6 @@ public abstract class Canvas extends Displayable {
     public final void serviceRepaints() { Display.requestPaint(this); }
 
     /* dispatch helpers for the input layer (used later) */
-    public final void __keyPressed(int k)  { keyPressed(k); }
-    public final void __keyReleased(int k) { keyReleased(k); }
+    final void dispatchKeyPressed(int keyCode)  { keyPressed(keyCode); }
+    final void dispatchKeyReleased(int keyCode) { keyReleased(keyCode); }
 }

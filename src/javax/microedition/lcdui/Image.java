@@ -2,6 +2,7 @@ package javax.microedition.lcdui;
 
 import flint.drawing.RawImage;
 import flint.midp.ResourceLoader;
+import flint.midp.Streams;
 
 /* MIDP Image backed by a flint.drawing.RawImage so it can be blitted with Flint's native
  * drawImage. Pixels are stored in Flint's BGR-packed big-endian RGB565 (same encoding as
@@ -77,7 +78,7 @@ public class Image {
         return new Image(IMG_RGB565, w, h, d, false);
     }
     public static Image createImage(java.io.InputStream stream) throws java.io.IOException {
-        byte[] data = stream.readAllBytes();
+        byte[] data = Streams.readAllBytes(stream);
         return createImage(data, 0, data.length);
     }
     public static Image createImage(String name) throws java.io.IOException {

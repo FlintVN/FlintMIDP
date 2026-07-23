@@ -1,9 +1,5 @@
 package javax.microedition.midlet;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Hashtable;
-import flint.midp.ResourceLoader;
 import javax.microedition.io.ConnectionNotFoundException;
 
 /**
@@ -16,14 +12,29 @@ import javax.microedition.io.ConnectionNotFoundException;
  * #notifyPaused()} and {@link #notifyDestroyed()}.</p>
  */
 public abstract class MIDlet {
-    private static final String MANIFEST_RESOURCE = "/MANIFEST.MF";
-
-    private Hashtable<String, String> applicationProperties;
+    // Properties are cached in MIDletLifecycle.getSuiteProperty().
+    // MIDlet holds no property storage — it delegates to the AMS.
 
     /**
      * Creates a MIDlet in the paused state.
+     *
+     * @throws SecurityException if the application management software is
+     *         not creating the MIDlet
      */
+    @SuppressWarnings("this-escape")
     protected MIDlet() {
+        /*
+         * Intentional controlled escape:
+         * MIDlet constructors may call MIDP services such as getAppProperty().
+         * MIDletLifecycle keeps this instance private until the complete
+         * constructor chain has returned.
+         *
+         * MIDP 2.0 §1.1.2: Only the AMS may create MIDlets.
+         */
+        if(!MIDletLifecycle.isAMSCreating())
+            throw new SecurityException(
+                    "MIDlets should not attempt to create other MIDlets");
+        MIDletLifecycle.attachFromConstructor(this);
     }
 
     /**
@@ -63,7 +74,6 @@ public abstract class MIDlet {
             throws MIDletStateChangeException {
         destroyApp(unconditional);
     }
-
     /**
      * Notifies the application management software that this MIDlet has
      * entered the destroyed state.
@@ -75,8 +85,16 @@ public abstract class MIDlet {
     /**
      * Notifies the application management software that this MIDlet has
      * entered the paused state.
+     *
+     * <p>Invoking this method will have no effect if the MIDlet is
+     * destroyed, or if it has not yet been started.</p>
      */
     public final void notifyPaused() {
+        int currentState = MIDletLifecycle.getState(this);
+        if (currentState == MIDletLifecycle.DESTROYED
+                || currentState == MIDletLifecycle.PAUSED) {
+            return;
+        }
         MIDletLifecycle.notifyPaused(this);
     }
 
@@ -96,20 +114,16 @@ public abstract class MIDlet {
      * @throws NullPointerException if {@code key} is {@code null}
      */
     public final String getAppProperty(String key) {
-        if(key == null) {
+        if (key == null) {
             throw new NullPointerException("key");
         }
-
-        if(applicationProperties == null) {
-            applicationProperties = loadApplicationProperties();
-        }
-        return applicationProperties.get(key);
+        return MIDletLifecycle.getSuiteProperty(key);
     }
 
     /**
      * Requests that the device handle a URL using an external application.
      *
-     * @param url URL to handle
+     * @param url URL to handle; an empty string cancels any pending requests
      * @return {@code true} if the MIDlet suite must exit before the request
      *         can be completed
      * @throws ConnectionNotFoundException if no handler is available
@@ -117,8 +131,12 @@ public abstract class MIDlet {
      */
     public final boolean platformRequest(String url)
             throws ConnectionNotFoundException {
-        if(url == null) {
+        if (url == null) {
             throw new NullPointerException("url");
+        }
+        // Empty string cancels pending requests
+        if (url.isEmpty()) {
+            return MIDletLifecycle.cancelPendingRequest(this);
         }
         return MIDletLifecycle.platformRequest(this, url);
     }
@@ -132,40 +150,10 @@ public abstract class MIDlet {
      * @throws NullPointerException if {@code permission} is {@code null}
      */
     public final int checkPermission(String permission) {
-        if(permission == null) {
+        if (permission == null) {
             throw new NullPointerException("permission");
         }
         return MIDletLifecycle.checkPermission(this, permission);
     }
 
-    private Hashtable<String, String> loadApplicationProperties() {
-        Hashtable<String, String> properties = new Hashtable<>();
-
-        try (InputStream stream = ResourceLoader.open(MANIFEST_RESOURCE)) {
-            parseProperties(new String(stream.readAllBytes()), properties);
-        } catch(IOException ignored) {
-            // An absent or unreadable manifest behaves as an empty property set.
-        }
-        return properties;
-    }
-
-    private static void parseProperties(
-            String content, Hashtable<String, String> properties) {
-        int start = 0;
-        while(start < content.length()) {
-            int end = content.indexOf('\n', start);
-            if(end < 0) {
-                end = content.length();
-            }
-
-            String line = content.substring(start, end).trim();
-            int separator = line.indexOf(':');
-            if(separator > 0) {
-                String key = line.substring(0, separator).trim();
-                String value = line.substring(separator + 1).trim();
-                properties.put(key, value);
-            }
-            start = end + 1;
-        }
-    }
 }

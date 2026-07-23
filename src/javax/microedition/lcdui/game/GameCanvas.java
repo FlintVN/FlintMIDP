@@ -1,7 +1,7 @@
 package javax.microedition.lcdui.game;
 
 import javax.microedition.lcdui.Canvas;
-import javax.microedition.lcdui.Display;
+import javax.microedition.lcdui.DisplayAccess;
 import javax.microedition.lcdui.Graphics;
 
 /* MIDP GameCanvas: active rendering via getGraphics()/flushGraphics() on the shared screen
@@ -17,7 +17,7 @@ public abstract class GameCanvas extends Canvas {
 
     protected GameCanvas(boolean suppressKeyEvents) {}
 
-    protected Graphics getGraphics() { return Display.gameGraphics(); }
+    protected Graphics getGraphics() { return DisplayAccess.gameGraphics(); }
 
     /* Deliver on-screen-keypad input HERE, on the game's own thread, every frame the game
      * flushes. Doing it on a separate thread needs that thread to out-prioritise the game's
@@ -32,15 +32,15 @@ public abstract class GameCanvas extends Canvas {
         touchPrev = cur;
     }
 
-    public void flushGraphics() { pumpTouch(); Display.flush(); }
-    public void flushGraphics(int x, int y, int width, int height) { pumpTouch(); Display.flush(); }
+    public void flushGraphics() { pumpTouch(); DisplayAccess.flush(); }
+    public void flushGraphics(int x, int y, int width, int height) { pumpTouch(); DisplayAccess.flush(); }
     public int getKeyStates() { return keyStates; }
 
     /* GameCanvas supplies a concrete paint(), so games that render actively via
      * getGraphics()/flushGraphics() (like Diamond Rush's `i`) need not override it.
      * The passive repaint() path (Display.requestPaint) calls this; for an active
      * renderer it's a no-op — the run() loop owns the framebuffer. */
-    public void paint(Graphics g) {}
+    protected void paint(Graphics g) {}
 
     /* Keep the polled bitmask in sync with delivered key events (injected or, later, touch). */
     protected void keyPressed(int keyCode) { keyStates |= toState(keyCode); }
