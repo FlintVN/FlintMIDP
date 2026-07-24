@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Specification-Title: Mobile Information Device Profile
+Specification-Version: 2.0
+Specification-Vendor: Sun Microsystems, Inc.
+Implementation-Title: FlintMIDP
+Implementation-Version: 1.0
+Implementation-Vendor: FlintVN
+Flint-API-Profile: MIDP-2.0
+Flint-JSR: 118

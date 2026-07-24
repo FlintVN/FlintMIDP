@@ -26,6 +26,7 @@ public class RecordStore {
     private long lastModified;
     private int version;
     private boolean open;
+    private int refCount;
 
     private RecordStore(String name, File file) throws RecordStoreException {
         this.name = name;
@@ -40,19 +41,18 @@ public class RecordStore {
             String recordStoreName, boolean createIfNecessary)
             throws RecordStoreException {
         validateName(recordStoreName);
-        String key = ResourceLoader.getSuiteDirectory() + "/" + recordStoreName;
+        String key = ResourceLoader.getSuiteDirectory().concat("/").concat(recordStoreName);
         RecordStore store = stores.get(key);
         if(store != null) {
             store.open = true;
+            store.refCount++;
             return store;
         }
 
         File directory = suiteDirectory();
         File file = new File(directory, recordStoreName + ".rms");
-        if(!file.exists() && !createIfNecessary)
-            throw new RecordStoreException("Record store not found: " + recordStoreName);
-        if(!directory.exists() && !directory.mkdirs())
-            throw new RecordStoreException("Cannot create RMS directory: " + directory);
+        if(!file.exists() && !createIfNecessary) throw new RecordStoreException("Record store not found: " + recordStoreName);
+        if(!directory.exists() && !directory.mkdirs()) throw new RecordStoreException("Cannot create RMS directory: " + directory);
 
         store = new RecordStore(recordStoreName, file);
         if(!file.exists())
@@ -64,7 +64,7 @@ public class RecordStore {
     public static synchronized void deleteRecordStore(String recordStoreName)
             throws RecordStoreException {
         validateName(recordStoreName);
-        String key = ResourceLoader.getSuiteDirectory() + "/" + recordStoreName;
+        String key = ResourceLoader.getSuiteDirectory().concat("/").concat(recordStoreName);
         RecordStore store = stores.remove(key);
         File file = new File(suiteDirectory(), recordStoreName + ".rms");
         if(store != null && store.open)
